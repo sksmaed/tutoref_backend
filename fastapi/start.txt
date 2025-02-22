@@ -1,0 +1,12 @@
+source venv/bin/activate
+systemctl stop postgresql
+sudo chmod -R 777 /home/sks/tutoref/fastapi/postgres_data
+docker-compose up -d
+curl -X GET "http://localhost:9200/teaching_plans/_search?pretty=true"
+docker exec -it tutoref_postgres psql -U tutoref_user -d tutoref_dev
+curl -X POST "http://localhost:9200/teaching_plans/_update/5" -H "Content-Type: application/json" -d '
+{
+  "doc": {
+    "semester": "24夏"
+  }
+}'

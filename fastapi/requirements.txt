@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+psycopg2-binary  
+python-dotenv   
+python-multipart
+pytest
+pytest-asyncio
+PyJWT
+aiohttp
+PyPDF2
+sentence-transformers
+elasticsearch
+numpy
