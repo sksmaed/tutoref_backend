@@ -18,6 +18,16 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - tutoref_network
+
+  web:
+    depends_on:
+      - db
+    links:
+      - db:db
+    networks:
+      - tutoref_network
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
@@ -67,3 +77,7 @@ services:
 volumes:
   postgres_data:
   elasticsearch_data:
+
+networks:
+  djangonetwork:
+    driver: bridge
