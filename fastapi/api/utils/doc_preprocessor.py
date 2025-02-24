@@ -1,12 +1,9 @@
 import PyPDF2
 import re
-from sentence_transformers import SentenceTransformer
-from typing import Dict, List, Tuple
+from typing import Dict, Tuple
 import logging
 
 class TeachingPlanProcessor:
-    def __init__(self):
-        self.model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
         
     def extract_pdf_text(self, pdf_path: str) -> str:
         """從 PDF 檔案提取文字內容"""
@@ -81,14 +78,3 @@ class TeachingPlanProcessor:
         )
         
         return "\n".join([part.strip() for part in content_parts if part.strip()])
-
-    def generate_embeddings(self, text: str) -> Dict[str, List]:
-        """生成文本的分段和 BERT embeddings"""
-        try:
-            # 分段處理
-            chunks = text.split("\n\n")
-            embeddings = [self.model.encode(chunk).tolist() for chunk in chunks]
-            return {"chunks": chunks, "embeddings": embeddings}
-        except Exception as e:
-            logging.error(f"Embedding 生成錯誤: {str(e)}")
-            raise

@@ -10,6 +10,5 @@ pytest-asyncio
 PyJWT
 aiohttp
 PyPDF2
-sentence-transformers
 elasticsearch
 numpy
