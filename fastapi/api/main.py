@@ -4,6 +4,7 @@ from .routers import search, admin, upload
 from .database import engine, Base
 from .elasticsearch_config import ESClient
 import os
+import uvicorn
 
 app = FastAPI()
 
@@ -27,3 +28,6 @@ async def startup_event():
     await es_client.init_index()
 
 app.state.es_client = es_client
+
+if __name__ == "__main__":
+    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
