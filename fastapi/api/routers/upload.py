@@ -32,6 +32,7 @@ async def upload_teaching_plan(
 
             # 準備要存入 Elasticsearch 的資料
             es_doc = {
+		"team": plan_data.team,
                 "semester": plan_data.semester,
                 "category": plan_data.category,
                 "grade": plan_data.grade,
@@ -94,7 +95,8 @@ async def upload_folder(
                     "sheet_docx": "",
                     "sheet_pdf": "",
                     "slide_pptx": "",
-                    "slide_pdf": ""
+                    "slide_pdf": "",
+                    "is_open": False
                 })
                 
                 return basic_info

@@ -57,8 +57,8 @@ async def search_teaching_plans(
         print(es_results)
         if es_results:
             for hit in es_results["hits"]:
-                if hit["_score"] > 0.7:
-                    result_id = int(hit["_id"].split("_")[0])
+                if hit["_score"] > 0.5:
+                    result_id = hit["_id"]
                     result_ids.append(result_id)
                     scores[result_id] = hit["_score"]
 
@@ -70,7 +70,7 @@ async def search_teaching_plans(
             if real_team:
                 query = query.filter(TeachingPlan.team == real_team)
             else:
-                query = query.filter(TeachingPlan.is_open == True)
+                query = query.filter(TeachingPlan.is_open == 1)
 
             teaching_plans = query.all()
             print(query)

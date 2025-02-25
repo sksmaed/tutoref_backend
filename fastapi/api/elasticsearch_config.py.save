@@ -84,7 +84,7 @@ class ESClient:
         if writer_name and writer_name.strip():
             must_clauses.append({
                 "wildcard": {
-                    "writer_name.keyword": {
+                    "writer_name": {
                         "value": f"*{writer_name}*",  # 允許部分匹配
                         "case_insensitive": True  # 不區分大小寫
                     }
@@ -107,20 +107,20 @@ class ESClient:
 
         # 過濾條件
         if filters:
-            for field, value in filters.items():
-                if value:
-                    # 檢查是否需要使用 .keyword
-                    keyword_fields = {"team", "category", "grade", "semester", "writer_name"}
-                    es_field = f"{field}.keyword" if field in keyword_fields else field
+	 for field, value in filters.items():
+        	if value:
+            	    # 檢查是否需要使用 .keyword
+            	    keyword_fields = {"team", "category", "grade", "semester", "writer_name"}
+            	    es_field = f"{field}.keyword" if field in keyword_fields else field
 
-                    if isinstance(value, list):
-                        search_body["query"]["bool"]["filter"].append(
-                            {"terms": {es_field: value}}
-                        )
-                    else:
-                        search_body["query"]["bool"]["filter"].append(
-                            {"term": {es_field: value}}
-                        )
+            	    if isinstance(value, list):
+                	search_body["query"]["bool"]["filter"].append(
+                    	    {"terms": {es_field: value}}
+                	)
+            	    else:
+                	search_body["query"]["bool"]["filter"].append(
+                    	    {"term": {es_field: value}}
+                	)
 
         print(search_body)
         try:

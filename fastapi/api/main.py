@@ -8,7 +8,7 @@ import uvicorn
 
 app = FastAPI()
 
-es_client = ESClient(os.getenv("ELASTICSEARCH_URL", "http://elasticsearch:9200"))
+es_client = ESClient(os.getenv("ELASTICSEARCH_URL", "http://tutoref_elasticsearch:9200"))
 
 app.add_middleware (
     CORSMiddleware,
