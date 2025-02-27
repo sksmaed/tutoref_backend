@@ -13,6 +13,7 @@ class TeachingPlan(BaseModel):
     venue: Optional[str] = None
     tp_name: Optional[str] = None
     team: Optional[str] = None
+    is_open: Optional[int] = False
 
     # 新增文件欄位（這四個欄位是用來儲存文件名稱或URL）
     sheet_docx: Optional[str] = None

@@ -32,7 +32,7 @@ async def upload_teaching_plan(
 
             # 準備要存入 Elasticsearch 的資料
             es_doc = {
-		"team": plan_data.team,
+		        "team": plan_data.team,
                 "semester": plan_data.semester,
                 "category": plan_data.category,
                 "grade": plan_data.grade,
