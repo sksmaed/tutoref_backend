@@ -8,4 +8,11 @@ router = APIRouter()
 
 @router.get("/admin")
 async def get_admin_page(current_admin: Admin = Depends(get_current_admin)):
-    return {"message": f"Welcome to admin page"}
+    return {"admin_name": current_admin.admin_name}
+
+@router.post("/admin")
+async def create_admin(admin: Admin, db: Session = Depends(get_db)):
+    db.add(admin)
+    db.commit()
+    db.refresh(admin)
+    return admin

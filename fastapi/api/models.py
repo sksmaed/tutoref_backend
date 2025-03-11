@@ -24,14 +24,13 @@ class TeachingPlan(Base):
     
     search_content = relationship("SearchContent", back_populates="teaching_plan", uselist=False)
 
-class SearchContent(Base):
-    __tablename__ = "search_contents"
-    
-    teaching_plan_id = Column(Integer, ForeignKey("teaching_plan.id"), primary_key=True)
-    content = Column(Text, nullable=False)
-    similarity_score = Column(Float)
-    
-    teaching_plan = relationship("TeachingPlan", back_populates="search_content")
+class Announcement(Base):
+    __tablename__ = 'announcement'
+    id = Column(Integer, primary_key=True, autoincrement=True) 
+    title = Column(String)
+    content = Column(String)
+    writer_name = Column(String)
+    created_at = Column(String)
     
 class Admin(Base):
     __tablename__ = 'admin'

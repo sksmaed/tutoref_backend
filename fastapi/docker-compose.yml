@@ -73,7 +73,9 @@ services:
 
 volumes:
   postgres_data:
+    external: true
   elasticsearch_data:
+    external: true
 
 networks:
   tutoref_network:
