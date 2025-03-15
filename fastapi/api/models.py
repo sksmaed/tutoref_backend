@@ -21,8 +21,7 @@ class TeachingPlan(Base):
     slide_pptx = Column(String)
     slide_pdf = Column(String)
     is_open = Column(Integer)
-    
-    search_content = relationship("SearchContent", back_populates="teaching_plan", uselist=False)
+
 
 class Announcement(Base):
     __tablename__ = 'announcement'
