@@ -69,29 +69,42 @@ class ESClient:
         
         must_clauses = []
         
-        # 主要關鍵字搜尋
         if query.strip():
             must_clauses.append({
-                "multi_match": {
-                    "query": query,
-                    "fields": ["objectives", "outline"],
-                    "type": "best_fields",
-                    "operator": "or"
+                "bool": {
+                    "should": [
+                        {
+                            "match": {
+                                "objectives": {
+                                    "query": query,
+                                    "boost": 1.0 
+                                }
+                            }
+                        },
+                        {
+                            "match": {
+                                "outline": {
+                                    "query": query,
+                                    "boost": 1.0
+                                }
+                            }
+                        }
+                    ],
+                    "minimum_should_match": 1
                 }
             })
 
-        # 搜尋作者名稱（writer_name）
+
         if writer_name and writer_name.strip():
             must_clauses.append({
                 "wildcard": {
                     "writer_name.keyword": {
-                        "value": f"*{writer_name}*",  # 允許部分匹配
-                        "case_insensitive": True  # 不區分大小寫
+                        "value": f"*{writer_name}*",
+                        "case_insensitive": True
                     }
                 }
             })
 
-        # 如果沒有關鍵字，也沒有作者名稱，就回傳所有資料
         if not must_clauses:
             must_clauses.append({"match_all": {}})
 
@@ -105,11 +118,9 @@ class ESClient:
             "size": top_k
         }
 
-        # 過濾條件
         if filters:
             for field, value in filters.items():
                 if value:
-                    # 檢查是否需要使用 .keyword
                     keyword_fields = {"team", "category", "grade", "semester", "writer_name"}
                     es_field = f"{field}.keyword" if field in keyword_fields else field
 
@@ -122,11 +133,11 @@ class ESClient:
                             {"term": {es_field: value}}
                         )
 
-        print(search_body)
         try:
             response = await self.client.search(
                 index=self.index_name,
-                body=search_body
+                body=search_body,
+                order=["_score"]
             )
             hits = response["hits"]
             return hits

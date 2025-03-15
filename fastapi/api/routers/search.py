@@ -44,7 +44,6 @@ async def search_teaching_plans(
                     filter_params[field] = values
 
         # 執行 ES 搜尋
-        print(filter_params)
         es_results = await request.app.state.es_client.search(
             query=query,
             writer_name=filters.writer_name,  # 傳遞作者名稱
@@ -57,7 +56,7 @@ async def search_teaching_plans(
         print(es_results)
         if es_results:
             for hit in es_results["hits"]:
-                if hit["_score"] > 0.5:
+                if hit["_score"] > 0.7:
                     result_id = hit["_id"]
                     result_ids.append(result_id)
                     scores[result_id] = hit["_score"]
@@ -73,7 +72,6 @@ async def search_teaching_plans(
                 query = query.filter(TeachingPlan.is_open == 1)
 
             teaching_plans = query.all()
-            print(query)
 
             return {
                 "status": "success",
