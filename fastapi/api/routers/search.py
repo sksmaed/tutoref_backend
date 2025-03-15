@@ -36,6 +36,7 @@ async def search_teaching_plans(
     try:
         # 準備過濾條件
         query = filters.keyword if filters.keyword else ""
+        threshold = 3.0 if filters.keyword else 0.7
 
         filter_params = {}
         for field in ["semester", "category", "grade", "duration", "team"]:
@@ -56,7 +57,7 @@ async def search_teaching_plans(
         print(es_results)
         if es_results:
             for hit in es_results["hits"]:
-                if hit["_score"] > 0.7:
+                if hit["_score"] > threshold:
                     result_id = hit["_id"]
                     result_ids.append(result_id)
                     scores[result_id] = hit["_score"]
