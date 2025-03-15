@@ -137,7 +137,6 @@ class ESClient:
             response = await self.client.search(
                 index=self.index_name,
                 body=search_body,
-                order=["_score"]
             )
             hits = response["hits"]
             return hits

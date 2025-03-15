@@ -72,6 +72,8 @@ async def search_teaching_plans(
                 query = query.filter(TeachingPlan.is_open == 1)
 
             teaching_plans = query.all()
+            
+            teaching_plans.sort(key=lambda plan: scores.get(str(plan.id), 0), reverse=True)
 
             return {
                 "status": "success",
