@@ -147,7 +147,7 @@ async def sync_postgres_to_elasticsearch(request: Request, db: Session = Depends
 
     for plan in plans:
         es_doc_id = str(plan.id)
-        exists = await request.app.state.es_client.exists(index=index_name, id=es_doc_id)
+        exists = await request.app.state.es_client.exists(index=index_name, doc_id=es_doc_id)
         
         if not exists.body:  # 如果 ES 裡沒有該文件
             es_doc = {
@@ -160,7 +160,7 @@ async def sync_postgres_to_elasticsearch(request: Request, db: Session = Depends
                 "objectives": plan.objectives,
                 "outline": plan.outline,
             }
-            await request.app.state.es_client.index(index=index_name, id=es_doc_id, document=es_doc)
+            await request.app.state.es_client.index_teaching_plan(teaching_plan_id=es_doc_id, doc=es_doc)
             missing_count += 1
     
     return {"status": "success", "message": f"{missing_count} documents added to Elasticsearch"}
