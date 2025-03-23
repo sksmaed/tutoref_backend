@@ -139,6 +139,33 @@ async def upload_folder(
         except Exception as e:
             print(f"Error removing temporary directory: {str(e)}")
 
+@router.post("/api/sync")
+async def sync_postgres_to_elasticsearch(request: Request, db: Session = Depends(get_db)):
+    plans = db.query(models.TeachingPlan).all()
+    index_name = "teaching_plans"
+    missing_count = 0
+
+    for plan in plans:
+        es_doc_id = str(plan.id)
+        exists = await request.app.state.es_client.exists(index=index_name, id=es_doc_id)
+        
+        if not exists.body:  # 如果 ES 裡沒有該文件
+            es_doc = {
+                "team": plan.team,
+                "semester": plan.semester,
+                "category": plan.category,
+                "grade": plan.grade,
+                "duration": plan.duration,
+                "writer_name": plan.writer_name,
+                "objectives": plan.objectives,
+                "outline": plan.outline,
+            }
+            await request.app.state.es_client.index(index=index_name, id=es_doc_id, document=es_doc)
+            missing_count += 1
+    
+    return {"status": "success", "message": f"{missing_count} documents added to Elasticsearch"}
+
+
 # 配置FastAPI應用
 def configure(app):
     app.include_router(router)

@@ -36,7 +36,7 @@ async def search_teaching_plans(
     try:
         # 準備過濾條件
         query = filters.keyword if filters.keyword else ""
-        threshold = 3.0 if filters.keyword else 0.7
+        threshold = 5.0 if filters.keyword else 0.7
 
         filter_params = {}
         for field in ["semester", "category", "grade", "duration", "team"]:

@@ -58,7 +58,7 @@ class ESClient:
             logging.error(f"Error indexing teaching plan: {str(e)}")
             raise
 
-    async def search(self, query: str, writer_name: Optional[str] = None, filters: Optional[Dict] = None, top_k: int = 50) -> List[Dict]:
+    async def search(self, query: str, writer_name: Optional[str] = None, filters: Optional[Dict] = None, top_k: int = 500) -> List[Dict]:
         """
         搜尋教案
         :param query: 搜尋關鍵字
