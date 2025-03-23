@@ -147,7 +147,7 @@ async def sync_postgres_to_elasticsearch(request: Request, db: Session = Depends
 
     for plan in plans:
         es_doc_id = str(plan.id)
-        exists = await request.app.state.es_client.exists(index=index_name, doc_id=es_doc_id)
+        exists = await request.app.state.es_client.exists(doc_id=es_doc_id)
         
         if not exists.body:  # 如果 ES 裡沒有該文件
             es_doc = {
