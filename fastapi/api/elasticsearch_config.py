@@ -58,9 +58,9 @@ class ESClient:
             logging.error(f"Error indexing teaching plan: {str(e)}")
             raise
     
-    async def exists(self, index: str, doc_id: str) -> bool:
+    async def exists(self, doc_id: str) -> bool:
         """檢查文件是否存在"""
-        return await self.client.exists_source(index=index, id=doc_id)
+        return await self.client.exists_source(index=self.index_name, id=doc_id)
 
     async def search(self, query: str, writer_name: Optional[str] = None, filters: Optional[Dict] = None, top_k: int = 500) -> List[Dict]:
         """
