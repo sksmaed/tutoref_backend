@@ -23,6 +23,7 @@ class ESClient:
                 }
             }
         }
+
         mappings = {
             "properties": {
                 "objectives": {"type": "text", "analyzer": "custom_analyzer"},
@@ -30,18 +31,21 @@ class ESClient:
                 "content": {"type": "text", "analyzer": "custom_analyzer"}
             }
         }
-        try:
-            index_exists = await self.client.indices.exists(index=self.index_name)
-            if not index_exists:
+
+        index_exists = await self.client.indices.exists(index=self.index_name)
+        if not index_exists:
+            try:
                 await self.client.indices.create(
                     index=self.index_name,
-                    settings=settings,
-                    mappings=mappings,
+                    body={
+                        "settings": settings,
+                        "mappings": mappings,
+                    }
                 )
                 logging.info(f"Created index {self.index_name}")
-        except exceptions.BadRequestError as e:
-            logging.error(f"Elasticsearch create index failed: {e.body}")
-            raise
+            except exceptions.BadRequestError as e:
+                logging.error(f"Elasticsearch create index failed: {e}")
+                raise
 
     async def index_teaching_plan(self, teaching_plan_id: str, doc: Dict):
         """
