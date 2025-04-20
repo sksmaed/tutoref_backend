@@ -12,8 +12,7 @@ class ESClient:
         
     async def init_index(self):
         """初始化索引配置"""
-        body = {
-            "settings": {
+        settings = {
                 "analysis": {
                     "analyzer": {
                         "custom_analyzer": {
@@ -24,16 +23,14 @@ class ESClient:
                     }
                 }
             },
-            "mappings": {
+        mappings = {
                 "properties": {
                     "objectives": {"type": "text", "analyzer": "custom_analyzer"},
                     "outline": {"type": "text", "analyzer": "custom_analyzer"},
                     "content": {"type": "text", "analyzer": "custom_analyzer"}
                 }
             }
-        }
         try:
-            body = {"index": self.index_name}
             index_exists = await self.client.indices.exists(index=self.index_name)
         except exceptions.BadRequestError as e:
             logging.error(f"Elasticsearch create index failed: {e.body}")
@@ -41,7 +38,8 @@ class ESClient:
         if not index_exists:
             await self.client.indices.create(
                 index=self.index_name,
-                body=body
+                settings=settings,
+                mappings=mappings,
             )
             logging.info(f"Created index {self.index_name}")
 
