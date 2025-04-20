@@ -13,35 +13,35 @@ class ESClient:
     async def init_index(self):
         """初始化索引配置"""
         settings = {
-                "analysis": {
-                    "analyzer": {
-                        "custom_analyzer": {
-                            "type": "custom",
-                            "tokenizer": "standard",
-                            "filter": ["lowercase", "stop"]
-                        }
+            "analysis": {
+                "analyzer": {
+                    "custom_analyzer": {
+                        "type": "custom",
+                        "tokenizer": "standard",
+                        "filter": ["lowercase", "stop"]
                     }
                 }
-            },
-        mappings = {
-                "properties": {
-                    "objectives": {"type": "text", "analyzer": "custom_analyzer"},
-                    "outline": {"type": "text", "analyzer": "custom_analyzer"},
-                    "content": {"type": "text", "analyzer": "custom_analyzer"}
-                }
             }
+        }
+        mappings = {
+            "properties": {
+                "objectives": {"type": "text", "analyzer": "custom_analyzer"},
+                "outline": {"type": "text", "analyzer": "custom_analyzer"},
+                "content": {"type": "text", "analyzer": "custom_analyzer"}
+            }
+        }
         try:
             index_exists = await self.client.indices.exists(index=self.index_name)
+            if not index_exists:
+                await self.client.indices.create(
+                    index=self.index_name,
+                    settings=settings,
+                    mappings=mappings,
+                )
+                logging.info(f"Created index {self.index_name}")
         except exceptions.BadRequestError as e:
             logging.error(f"Elasticsearch create index failed: {e.body}")
             raise
-        if not index_exists:
-            await self.client.indices.create(
-                index=self.index_name,
-                settings=settings,
-                mappings=mappings,
-            )
-            logging.info(f"Created index {self.index_name}")
 
     async def index_teaching_plan(self, teaching_plan_id: str, doc: Dict):
         """
