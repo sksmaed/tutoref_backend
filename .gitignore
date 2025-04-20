@@ -1,2 +1,4 @@
 .env
 fastapi/start.md
+credentials.json
+token.json

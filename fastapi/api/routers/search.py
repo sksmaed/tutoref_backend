@@ -1,5 +1,5 @@
 import logging
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
 
@@ -8,7 +8,7 @@ from ..database import get_db
 from ..models import TeachingPlan
 from pydantic import BaseModel
 
-router = APIRouter()
+router = APIRouter(prefix="/api", tags=["search"])
 
 class SearchFilters(BaseModel):
     team: List[str] = []
@@ -21,7 +21,7 @@ class SearchFilters(BaseModel):
     teamHash: Optional[str] = None
 
 
-@router.post("/api/search")
+@router.post("/search")
 async def search_teaching_plans(
     request: Request,
     filters: SearchFilters,
@@ -95,4 +95,24 @@ async def search_teaching_plans(
         raise HTTPException(
             status_code=500, 
             detail=f"搜尋過程發生錯誤: {str(e)}"
+        )
+
+@router.get("/google_drive_data")
+async def get_google_drive_data(
+    request: Request,
+    folder_urls: list[str] = Query(..., description="多個 Google Drive 資料夾連結"),
+    db: Session = Depends(get_db)
+):
+    try:
+        files = request.app.state.google_drive_client.get_all_files(folder_urls)
+        return {
+            "status": "success",
+            "count": len(files),
+            "data": files
+        }
+    except Exception as e:
+        logging.error(f"Google Drive data error: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"獲取 Google Drive 資料過程發生錯誤: {str(e)}"
         )

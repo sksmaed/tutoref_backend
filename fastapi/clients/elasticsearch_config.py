@@ -1,7 +1,7 @@
-from elasticsearch import AsyncElasticsearch
+from elasticsearch import AsyncElasticsearch, exceptions
 import logging
 from typing import Dict, List, Optional
-from .utils.doc_preprocessor import TeachingPlanProcessor
+from api.utils.doc_preprocessor import TeachingPlanProcessor
 
 processor = TeachingPlanProcessor()
 
@@ -12,32 +12,36 @@ class ESClient:
         
     async def init_index(self):
         """初始化索引配置"""
-        settings = {
-            "analysis": {
-                "analyzer": {
-                    "custom_analyzer": {
-                        "type": "custom",
-                        "tokenizer": "standard",
-                        "filter": ["lowercase", "stop"]
+        body = {
+            "settings": {
+                "analysis": {
+                    "analyzer": {
+                        "custom_analyzer": {
+                            "type": "custom",
+                            "tokenizer": "standard",
+                            "filter": ["lowercase", "stop"]
+                        }
                     }
+                }
+            },
+            "mappings": {
+                "properties": {
+                    "objectives": {"type": "text", "analyzer": "custom_analyzer"},
+                    "outline": {"type": "text", "analyzer": "custom_analyzer"},
+                    "content": {"type": "text", "analyzer": "custom_analyzer"}
                 }
             }
         }
-        
-        mappings = {
-            "properties": {
-                "objectives": {"type": "text", "analyzer": "custom_analyzer"},
-                "outline": {"type": "text", "analyzer": "custom_analyzer"},
-                "content": {"type": "text", "analyzer": "custom_analyzer"}
-            }
-        }
-
-        index_exists = await self.client.indices.exists(index=self.index_name)
+        try:
+            body = {"index": self.index_name}
+            index_exists = await self.client.indices.exists(index=self.index_name)
+        except exceptions.BadRequestError as e:
+            logging.error(f"Elasticsearch create index failed: {e.body}")
+            raise
         if not index_exists:
             await self.client.indices.create(
                 index=self.index_name,
-                settings=settings,
-                mappings=mappings
+                body=body
             )
             logging.info(f"Created index {self.index_name}")
 

@@ -2,13 +2,14 @@ version: '3.8'
 
 services:
   db:
-    image: postgres:latest
+    image: postgres:15
     container_name: tutoref_postgres
     restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
     ports:
       - "5432:5432"
     volumes:
@@ -24,24 +25,25 @@ services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
     container_name: tutoref_elasticsearch
+    restart: always
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - "cluster.routing.allocation.disk.threshold_enabled=false"
-      - "cluster.routing.allocation.disk.watermark.low=95%"
-      - "cluster.routing.allocation.disk.watermark.high=98%"
-      - "cluster.routing.allocation.disk.watermark.flood_stage=99%"
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      - cluster.routing.allocation.disk.watermark.low=90%
+      - cluster.routing.allocation.disk.watermark.high=95%
+      - cluster.routing.allocation.disk.watermark.flood_stage=99%
+      - path.repo=/usr/share/elasticsearch/backup
     ports:
       - "9200:9200"
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
-    deploy:
-      resources:
-        limits:
-          memory: 2g
-        reservations:
-          memory: 1g
+      - ./es_backup:/usr/share/elasticsearch/backup
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9200/_cat/health"]
       interval: 30s
@@ -54,6 +56,7 @@ services:
     build:
       context: .
     container_name: tutoref_app
+    restart: always
     ports:
       - "8000:8000"
     depends_on:
@@ -61,13 +64,17 @@ services:
         condition: service_healthy
       elasticsearch:
         condition: service_healthy
-    restart: always
     environment:
       DATABASE_URL: ${DATABASE_URL}
       ELASTICSEARCH_URL: http://tutoref_elasticsearch:9200
+      SECRET_KEY: ${SECRET_KEY}
     volumes:
       - .:/app
-    command: uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
+    command: >
+      gunicorn api.main:app
+      --workers 4
+      --worker-class uvicorn.workers.UvicornWorker
+      --bind 0.0.0.0:8000
     networks:
       - tutoref_network
 
