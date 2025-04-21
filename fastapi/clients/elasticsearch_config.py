@@ -32,15 +32,13 @@ class ESClient:
             }
         }
 
-        index_exists = await self.client.indices.exists(index=self.index_name)
+        index_exists = await self.client.indices.get(index=self.index_name)
         if not index_exists:
             try:
                 await self.client.indices.create(
                     index=self.index_name,
-                    body={
-                        "settings": settings,
-                        "mappings": mappings,
-                    }
+                    settings=settings,
+                    mappings=mappings,
                 )
                 logging.info(f"Created index {self.index_name}")
             except exceptions.BadRequestError as e:
