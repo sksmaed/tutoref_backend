@@ -20,18 +20,18 @@ app.include_router(search.router)
 app.include_router(admin.router)
 app.include_router(upload.router)
 
+
 @app.on_event("startup")
-async def init_clients():
+async def startup_event():
+    Base.metadata.create_all(bind=engine)
+    
     global google_drive_client
     global es_client
     google_drive_client = GoogleDriveClient()
     es_client = ESClient(os.getenv("ELASTICSEARCH_URL", "http://tutoref_elasticsearch:9200"))
     app.state.google_drive_client = google_drive_client
     app.state.es_client = es_client
-
-@app.on_event("startup")
-async def startup_event():
-    Base.metadata.create_all(bind=engine)
+    
     await es_client.init_index()
 
 if __name__ == "__main__":

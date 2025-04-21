@@ -28,11 +28,16 @@ class ESClient:
             "properties": {
                 "objectives": {"type": "text", "analyzer": "custom_analyzer"},
                 "outline": {"type": "text", "analyzer": "custom_analyzer"},
-                "content": {"type": "text", "analyzer": "custom_analyzer"}
+                "team": {"type": "keyword"},
+                "semester": {"type": "keyword"},
+                "category": {"type": "keyword"},
+                "grade": {"type": "keyword"},
+                "duration": {"type": "keyword"},
+                "writer_name": {"type": "keyword"},
             }
         }
 
-        index_exists = await self.client.indices.get(index=self.index_name)
+        index_exists = await self.client.indices.exists(index=self.index_name)
         if not index_exists:
             try:
                 await self.client.indices.create(
